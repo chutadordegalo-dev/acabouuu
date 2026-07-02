@@ -254,7 +254,37 @@ app.delete('/api/admin/coletas/:id', (req, res) => {
         res.json({ success: true, mensagem: "Solicitação excluída com sucesso!" });
     });
 });
+// --- ROTAS DO ADMINISTRADOR ---
 
+// 1. Adicionar Novo Produto na Loja
+app.post('/api/admin/produtos', (req, res) => {
+    const { nome, preco, quantidade, imagem } = req.body;
+
+    if (!nome || !preco || quantidade === undefined) {
+        return res.status(400).json({ sucesso: false, erro: "Preencha os campos obrigatórios." });
+    }
+
+    const sql = "INSERT INTO produtos (nome, preco, quantidade, imagem) VALUES (?, ?, ?, ?)";
+    db.query(sql, [nome, preco, quantidade, imagem || 'img/default.png'], (err, result) => {
+        if (err) return res.status(500).json({ sucesso: false, erro: err.message });
+        res.json({ sucesso: true, mensagem: "Produto adicionado com sucesso!", id: result.insertId });
+    });
+});
+
+// 2. Adicionar Novo Ponto de Coleta no Mapa
+app.post('/api/admin/pontos', (req, res) => {
+    const { nome, endereco, lat, lng } = req.body;
+
+    if (!nome || !endereco || !lat || !lng) {
+        return res.status(400).json({ sucesso: false, erro: "Todos os campos do ponto são obrigatórios." });
+    }
+
+    const sql = "INSERT INTO pontos (nome, endereco, lat, lng) VALUES (?, ?, ?, ?)";
+    db.query(sql, [nome, endereco, lat, lng], (err, result) => {
+        if (err) return res.status(500).json({ sucesso: false, erro: err.message });
+        res.json({ sucesso: true, mensagem: "Ponto de coleta adicionado com sucesso!", id: result.insertId });
+    });
+});
 // Inicialização do servidor Express
 app.listen(PORT, () => {
     console.log(`📡 Servidor EcoByte rodando perfeitamente na porta ${PORT}`);

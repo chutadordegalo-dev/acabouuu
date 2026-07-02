@@ -7,8 +7,10 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="ico/ico.png">
+    <link rel="icon" type="image/png" href="../ico/ico.png">
     
+    <link rel="stylesheet" href="../css/loja.css">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -32,8 +34,8 @@
 
     <header class="fixed w-full top-0 z-50 bg-white shadow-sm transition-all duration-300">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="inicio.html" class="flex items-center gap-3 group">
-                <img src="img/logoo.png" alt="Logo EcoByte" class="h-14 w-auto">
+            <a href="../html/inicio.html" class="flex items-center gap-3 group">
+                <img src="../img/logoo.png" alt="Logo EcoByte" class="h-14 w-auto">
                 <span class="text-2xl font-bold text-eco-dark tracking-tight">EcoByte</span>
             </a>
             
@@ -42,9 +44,9 @@
             </button>
             
             <nav class="hidden md:flex items-center gap-6 font-medium text-gray-600">
-                <a href="inicio.html" class="hover:text-eco-dark transition-colors">Home</a>
-                <a href="inicio.html#servicos" class="hover:text-eco-dark transition-colors">Serviços</a>
-                <a href="portifolio.html" class="hover:text-eco-dark transition-colors">Portfólio</a>
+                <a href="../html/inicio.html" class="hover:text-eco-dark transition-colors">Home</a>
+                <a href="../html/inicio.html#servicos" class="hover:text-eco-dark transition-colors">Serviços</a>
+                <a href="../html/portifolio.html" class="hover:text-eco-dark transition-colors">Portfólio</a>
                 <a href="#" class="text-eco-dark font-bold border-b-2 border-eco-dark pb-1">Loja</a>
                 
                 <button id="btn-meus-pedidos" class="flex items-center gap-1.5 text-gray-600 hover:text-eco-dark transition-colors focus:outline-none">
@@ -62,9 +64,9 @@
         </div>
 
         <nav id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-4 shadow-lg flex flex-col font-medium text-gray-600">
-            <a href="inicio.html" class="hover:text-eco-dark transition-colors py-1">Home</a>
-            <a href="inicio.html#servicos" class="hover:text-eco-dark transition-colors py-1">Serviços</a>
-            <a href="portifolio.html" class="hover:text-eco-dark transition-colors py-1">Portfólio</a>
+            <a href="../html/inicio.html" class="hover:text-eco-dark transition-colors py-1">Home</a>
+            <a href="../html/inicio.html#servicos" class="hover:text-eco-dark transition-colors py-1">Serviços</a>
+            <a href="../html/portifolio.html" class="hover:text-eco-dark transition-colors py-1">Portfólio</a>
             <a href="#" class="text-eco-dark font-bold py-1">Loja</a>
             <hr class="border-gray-100">
             
@@ -109,8 +111,8 @@
                             <p class="text-[11px] text-gray-500 mt-1">Estoque: <span id="estoque-prod-1" class="font-semibold text-emerald-600">Carregando...</span></p>
                         </div>
                         <div class="mt-4">
-                            <span class="text-xl font-extrabold text-eco-dark">R$ 850,00</span>
-                            <button onclick="adicionarAoCarrinho('NVIDIA GTX 1660 Super 6GB', 850.00)" class="w-full bg-eco-dark text-white text-xs font-bold py-2.5 rounded-xl mt-4 hover:bg-eco-blue transition-colors flex items-center justify-center gap-2">
+                            <span class="text-xl font-extrabold text-eco-dark">R$ 1.200,00</span>
+                            <button onclick="adicionarAoCarrinho('NVIDIA GTX 1660 Super 6GB', 1200.00)" class="w-full bg-eco-dark text-white text-xs font-bold py-2.5 rounded-xl mt-4 hover:bg-eco-blue transition-colors flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
                             </button>
                         </div>
@@ -128,8 +130,8 @@
                             <p class="text-[11px] text-gray-500 mt-1">Estoque: <span id="estoque-prod-2" class="font-semibold text-emerald-600">Carregando...</span></p>
                         </div>
                         <div class="mt-4">
-                            <span class="text-xl font-extrabold text-eco-dark">R$ 180,00</span>
-                            <button onclick="adicionarAoCarrinho('SSD Kingston A400 480GB Sata III', 180.00)" class="w-full bg-eco-dark text-white text-xs font-bold py-2.5 rounded-xl mt-4 hover:bg-eco-blue transition-colors flex items-center justify-center gap-2">
+                            <span class="text-xl font-extrabold text-eco-dark">R$ 250,00</span>
+                            <button onclick="adicionarAoCarrinho('SSD Kingston A400 480GB Sata III', 250.00)" class="w-full bg-eco-dark text-white text-xs font-bold py-2.5 rounded-xl mt-4 hover:bg-eco-blue transition-colors flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
                             </button>
                         </div>
@@ -148,8 +150,8 @@
                             <p class="text-[11px] text-gray-500 mt-1">Estoque: <span id="estoque-prod-3" class="font-semibold text-emerald-600">Carregando...</span></p>
                         </div>
                         <div class="mt-4">
-                            <span class="text-xl font-extrabold text-eco-dark">R$ 120,00</span>
-                            <button onclick="adicionarAoCarrinho('Memória RAM HyperX Fury 8GB DDR4', 120.00)" class="w-full bg-eco-dark text-white text-xs font-bold py-2.5 rounded-xl mt-4 hover:bg-eco-blue transition-colors flex items-center justify-center gap-2">
+                            <span class="text-xl font-extrabold text-eco-dark">R$ 180,00</span>
+                            <button onclick="adicionarAoCarrinho('Memória RAM HyperX Fury 8GB DDR4', 180.00)" class="w-full bg-eco-dark text-white text-xs font-bold py-2.5 rounded-xl mt-4 hover:bg-eco-blue transition-colors flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
                             </button>
                         </div>
@@ -167,8 +169,8 @@
                             <p class="text-[11px] text-gray-500 mt-1">Estoque: <span id="estoque-prod-4" class="font-semibold text-emerald-600">Carregando...</span></p>
                         </div>
                         <div class="mt-4">
-                            <span class="text-xl font-extrabold text-eco-dark">R$ 490,00</span>
-                            <button onclick="adicionarAoCarrinho('Intel Core i5-10400F 2.9GHz', 490.00)" class="w-full bg-eco-dark text-white text-xs font-bold py-2.5 rounded-xl mt-4 hover:bg-eco-blue transition-colors flex items-center justify-center gap-2">
+                            <span class="text-xl font-extrabold text-eco-dark">R$ 600,00</span>
+                            <button onclick="adicionarAoCarrinho('Intel Core i5-10400F 2.9GHz', 600.00)" class="w-full bg-eco-dark text-white text-xs font-bold py-2.5 rounded-xl mt-4 hover:bg-eco-blue transition-colors flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
                             </button>
                         </div>
@@ -273,8 +275,7 @@
     </div>
 
     <div id="modal-checkout-resultado" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex justify-center items-center hidden p-4" role="dialog" aria-modal="true">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 text-center space-y-4 max-h-[90vh] overflow-y-auto" id="conteudo-checkout-resultado">
-            </div>
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 text-center space-y-4 max-h-[90vh] overflow-y-auto" id="conteudo-checkout-resultado"></div>
     </div>
 
     <div id="modal-pedidos" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[110] flex justify-center items-center hidden p-4" role="dialog" aria-modal="true">
@@ -300,6 +301,6 @@
         <p class="font-semibold text-white mb-1">EcoByte © 2026</p>
     </footer>
 
-    <script src="loja.js"></script>
+    <script src="../js/loja.js"></script>
 </body>
 </html>

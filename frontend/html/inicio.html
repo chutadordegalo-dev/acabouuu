@@ -10,14 +10,14 @@
     <link class="w-5 h-5 rounded-full" rel="icon" type="image/png" href="ico/ico.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="inicio.css">
+    <link rel="stylesheet" href="../css/inicio.css">
 </head>
 <body class="bg-eco-bg text-gray-800">
 
     <header class="fixed w-full top-0 z-50 bg-white shadow-sm transition-all duration-300" id="navbar">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <a href="#" class="flex items-center gap-3 group">
-                <img src="img/logoo.png" alt="Logo EcoByte" class="h-14 w-auto">
+                <img src="../img/logoo.png" alt="Logo EcoByte" class="h-14 w-auto">
                 <span class="text-2xl font-bold text-eco-dark tracking-tight">EcoByte</span>
             </a>
             
@@ -29,8 +29,8 @@
                 <a href="#" class="text-eco-dark font-bold border-b-2 border-eco-dark pb-1">Home</a>
                 <a href="#servicos" class="hover:text-eco-dark transition-colors">Serviços</a>
                 <a href="#reciclamos" class="hover:text-eco-dark transition-colors">O que Reciclamos</a>
-                <a href="portifolio.html" class="hover:text-eco-dark transition-colors">Portfólio</a>
-                <a href="loja.html" class="hover:text-eco-dark transition-colors flex items-center gap-1">
+                <a href="../html/portifolio.html" class="hover:text-eco-dark transition-colors">Portfólio</a>
+                <a href="../html/loja.html" class="hover:text-eco-dark transition-colors flex items-center gap-1">
                     <i class="fa-solid fa-shop text-amber-600 text-sm"></i> Loja
                 </a>
                 
@@ -42,8 +42,8 @@
             <a href="#" class="mobile-link text-eco-dark font-bold py-1">Home</a>
             <a href="#servicos" class="mobile-link hover:text-eco-dark transition-colors py-1">Serviços</a>
             <a href="#reciclamos" class="mobile-link hover:text-eco-dark transition-colors py-1">O que Reciclamos</a>
-            <a href="portifolio.html" class="mobile-link hover:text-eco-dark transition-colors py-1">Portfólio</a>
-            <a href="loja.html" class="mobile-link hover:text-eco-dark transition-colors py-1 flex items-center gap-2">
+            <a href="../html/portifolio.html" class="mobile-link hover:text-eco-dark transition-colors py-1">Portfólio</a>
+            <a href="../html/loja.html" class="mobile-link hover:text-eco-dark transition-colors py-1 flex items-center gap-2">
                 <i class="fa-solid fa-shop text-amber-600"></i> Loja
             </a>
             <hr class="border-gray-100">
@@ -167,6 +167,44 @@
         </div>
     </section>
 
+    <section id="admin-cadastro-ponto" class="py-20 bg-gray-100 ">
+        <div class="container mx-auto px-4 max-w-2xl">
+            <div class="bg-white p-8 rounded-3xl shadow-lg border border-gray-200">
+                <div class="text-center mb-6">
+                    <span class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Painel do Administrador
+                    </span>
+                    <h3 class="text-2xl font-bold text-eco-dark mt-2">Cadastrar Novo Ponto de Coleta</h3>
+                    <p class="text-xs text-gray-500 mt-1">Insira os dados para adicionar um ponto no mapa em tempo real</p>
+                </div>
+
+                <form id="pontoForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Nome do Ponto</label>
+                        <input type="text" id="ponto-nome" required class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm" placeholder="Ex: EcoByte Central - Eldorado">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Endereço Completo</label>
+                        <input type="text" id="ponto-endereco" required class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm" placeholder="Rua, Número, Bairro - Contagem/MG">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Latitude</label>
+                            <input type="number" id="ponto-lat" step="any" required class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm" placeholder="Ex: -19.9350">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Longitude</label>
+                            <input type="number" id="ponto-lng" step="any" required class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm" placeholder="Ex: -44.0450">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-eco-dark text-white py-3.5 rounded-xl font-bold hover:bg-eco-blue transition-colors text-sm shadow-lg tracking-wide uppercase mt-2">
+                        Cadastrar Ponto
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
     <section class="py-20 bg-gradient-to-br from-eco-dark to-[#1d3327] text-white">
         <div class="container mx-auto px-4 max-w-5xl">
             <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -263,6 +301,6 @@
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="inicio.js"></script>
+    <script src="../js/inicio.js"></script>
 </body>
-</html>
+</html> 

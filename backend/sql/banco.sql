@@ -21,7 +21,15 @@ CREATE TABLE IF NOT EXISTS produtos (
     quantidade INT NOT NULL DEFAULT 0, -- Controle de Estoque solicitado
     imagem VARCHAR(255) NULL
 );
-
+-- Executar este comando no seu banco de dados (ecobyte_db):
+CREATE TABLE IF NOT EXISTS pontos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    endereco TEXT NOT NULL,
+    lat DECIMAL(10, 8) NOT NULL,
+    lng DECIMAL(11, 8) NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 -- 3. Tabela de Pedidos
 CREATE TABLE IF NOT EXISTS pedidos (
     id INT AUTO_INCREMENT PRIMARY KEY,

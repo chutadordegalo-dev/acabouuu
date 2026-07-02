@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     salvarCarrinho();
     configurarMudancaPagamento();
     
-    // ADICIONADO: Busca os estoques e produtos direto do MySQL assim que a página carrega
+    // Busca os estoques e produtos direto do MySQL assim que a página carrega e monta a vitrine
     carregarEstoqueDoBanco();
 });
 
@@ -35,61 +35,85 @@ function inicializarElementosDOM() {
     document.getElementById('btn-finalizar-compra').addEventListener('click', finalizarCompra);
 }
 
-// ADICIONADO: Nova função para buscar dinamicamente os valores de estoque do banco de dados
+// ADICIONADO/MODIFICADO: Função 100% dinâmica que gera os cards da vitrine direto do MySQL
 function carregarEstoqueDoBanco() {
     fetch('http://localhost:3000/api/produtos')
         .then(res => res.json())
         .then(produtos => {
-            // Mapeia o array de linhas do banco para o formato de objeto esperado pelo restante do script
-            produtos.forEach(p => {
-                estoqueProdutos[p.nome] = p.quantidade;
-            });
+            const vitrine = document.getElementById('vitrine-produtos');
+            if (!vitrine) return;
+
+            // Limpa qualquer conteúdo antigo ou estático da vitrine
+            vitrine.innerHTML = ''; 
             
-            // Atualiza o localStorage de backup e redesenha na tela do cliente
+            // Reseta o objeto de controle global de estoque
+            estoqueProdutos = {}; 
+
+            produtos.forEach(p => {
+                // Sincroniza a quantidade para validações internas de carrinho no script
+                estoqueProdutos[p.nome] = p.quantidade;
+
+                // Verifica o status do estoque para mudar as cores e o botão
+                const indisponivel = p.quantidade <= 0;
+                
+                let textoEstoque = '';
+                if (indisponivel) {
+                    textoEstoque = `<span class="font-semibold text-red-500 text-xs bg-red-50 px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle-xmark mr-1"></i>Esgotado</span>`;
+                } else {
+                    textoEstoque = `<span class="font-semibold text-emerald-600 text-xs bg-emerald-50 px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle-check mr-1"></i>${p.quantidade} un. disponíveis</span>`;
+                }
+
+                // Cria o Card do Produto utilizando as classes visuais do Tailwind
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow duration-300";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="w-full h-36 bg-gray-50 rounded-xl p-3 flex items-center justify-center mb-3">
+                            <img src="${p.imagem || '../img/default-product.png'}" alt="${p.nome}" class="max-h-full max-w-full object-contain mix-blend-multiply">
+                        </div>
+                        
+                        <h3 class="font-bold text-gray-800 text-sm line-clamp-2 h-10 mb-2" title="${p.nome}">${p.nome}</h3>
+                        
+                        <div class="mb-4">${textoEstoque}</div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-eco-dark font-extrabold text-base mb-3">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</p>
+                        
+                        <button 
+                            onclick="adicionarAoCarrinho('${p.nome.replace(/'/g, "\\'")}', ${p.preco})"
+                            ${indisponivel ? 'disabled class="w-full bg-gray-200 text-gray-400 py-2.5 rounded-xl font-bold text-xs cursor-not-allowed"' : 'class="w-full bg-eco-dark text-white py-2.5 rounded-xl font-bold text-xs hover:bg-eco-blue transition shadow-sm font-sans"'}
+                        >
+                            ${indisponivel ? 'Indisponível' : '<i class="fa-solid fa-cart-plus mr-1"></i> Adicionar ao Carrinho'}
+                        </button>
+                    </div>
+                `;
+                
+                // Adiciona o card gerado dentro da vitrine html
+                vitrine.appendChild(card);
+            });
+
+            // Atualiza o backup de segurança do localStorage
             localStorage.setItem('ecobyte_estoque', JSON.stringify(estoqueProdutos));
-            atualizarExibicaoEstoque();
         })
         .catch(err => {
-            console.error("Erro ao sincronizar estoque com o banco de dados:", err);
+            console.error("❌ Erro ao sincronizar produtos do banco com a vitrine:", err);
             
-            // Fallback de segurança: Caso o servidor caia, usa o último guardado ou valores padrão
-            estoqueProdutos = JSON.parse(localStorage.getItem('ecobyte_estoque')) || {
-                "NVIDIA GTX 1660 Super 6GB": 5,
-                "SSD Kingston A400 480GB Sata III": 12,
-                "Memória RAM HyperX Fury 8GB DDR4": 8,
-                "Intel Core i5-10400F 2.9GHz": 4
-            };
-            atualizarExibicaoEstoque();
+            // Fallback de segurança se a API estiver offline
+            const vitrine = document.getElementById('vitrine-produtos');
+            if (vitrine && vitrine.children.length === 0) {
+                vitrine.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-gray-500 text-xs">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl block mb-2"></i>
+                        Não foi possível carregar a vitrine em tempo real. O servidor está offline.
+                    </div>
+                `;
+            }
         });
 }
 
-// Renderiza as quantidades atuais de estoque nos elementos HTML correspondentes
-function atualizarExibicaoEstoque() {
-    const mapaId = {
-        "NVIDIA GTX 1660 Super 6GB": "estoque-prod-1",
-        "SSD Kingston A400 480GB Sata III": "estoque-prod-2",
-        "Memória RAM HyperX Fury 8GB DDR4": "estoque-prod-3",
-        "Intel Core i5-10400F 2.9GHz": "estoque-prod-4"
-    };
-
-    Object.keys(mapaId).forEach(nomeProduto => {
-        const elementoId = mapaId[nomeProduto];
-        const elemento = document.getElementById(elementoId);
-        if (elemento) {
-            const qtdEstoque = estoqueProdutos[nomeProduto] !== undefined ? estoqueProdutos[nomeProduto] : 0;
-            if (qtdEstoque <= 0) {
-                elemento.innerText = "Esgotado";
-                elemento.className = "font-semibold text-red-500";
-            } else {
-                elemento.innerText = `${qtdEstoque} un.`;
-                elemento.className = "font-semibold text-emerald-600";
-            }
-        }
-    });
-    localStorage.setItem('ecobyte_estoque', JSON.stringify(estoqueProdutos));
-}
-
-// MONITOR DE EXIBIÇÃO DE OPÇÃO DE CARTÃO (CORRIGIDO: radios.forEach)
+// MONITOR DE EXIBIÇÃO DE OPÇÃO DE CARTÃO
 function configurarMudancaPagamento() {
     const radios = document.querySelectorAll('input[name="forma-pagamento"]');
     const secaoCartao = document.getElementById('secao-formulario-cartao');
@@ -203,7 +227,6 @@ window.adicionarAoCarrinho = function(nome, preco) {
     const qtdAtualNoCarrinho = item ? item.qtd : 0;
     const estoqueDisponivel = estoqueProdutos[nome] || 0;
 
-    // Bloqueia a adição ao carrinho caso ultrapasse a quantidade em estoque
     if (qtdAtualNoCarrinho + 1 > estoqueDisponivel) {
         alert("⚠️ Limite de estoque atingido para este item!");
         return;
@@ -217,7 +240,6 @@ window.removerItem = function(nome) { carrinho = carrinho.filter(i => i.nome !==
 window.alterarQuantidade = function(nome, v) { 
     const item = carrinho.find(i => i.nome === nome);
     if(item) { 
-        // Valida limite de estoque ao incrementar quantidade de itens direto do carrinho
         if (v > 0 && item.qtd + v > (estoqueProdutos[nome] || 0)) {
             alert("⚠️ Desculpe, não temos mais unidades disponíveis em estoque.");
             return;
@@ -268,11 +290,11 @@ function renderizarCarrinho() {
                 <p class="text-gray-500">R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
             </div>
             <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-1.5">
-                <button onclick="alterarQuantidade('${item.nome}', -1)" class="font-bold text-gray-500 hover:text-eco-dark px-1">-</button>
+                <button onclick="alterarQuantidade('${item.nome.replace(/'/g, "\\'")}', -1)" class="font-bold text-gray-500 hover:text-eco-dark px-1">-</button>
                 <span class="font-bold text-center text-xs w-4">${item.qtd}</span>
-                <button onclick="alterarQuantidade('${item.nome}', 1)" class="font-bold text-gray-500 hover:text-eco-dark px-1">+</button>
+                <button onclick="alterarQuantidade('${item.nome.replace(/'/g, "\\'")}', 1)" class="font-bold text-gray-500 hover:text-eco-dark px-1">+</button>
             </div>
-            <button onclick="removerItem('${item.nome}')" class="text-red-500 ml-2"><i class="fa-solid fa-trash"></i></button>
+            <button onclick="removerItem('${item.nome.replace(/'/g, "\\'")}')" class="text-red-500 ml-2"><i class="fa-solid fa-trash"></i></button>
         `;
         container.appendChild(div);
     });
@@ -282,7 +304,7 @@ function renderizarCarrinho() {
     totalElemento.innerText = `R$ ${(valorSubtotal + valorFrete).toFixed(2).replace('.', ',')}`;
 }
 
-// CHECKOUT INTEGRADO COM ENVIOS PARA O BANCO DE DADOS MYSQL E LOCALSTORAGE
+// CHECKOUT INTEGRADO COM MYSQL
 function finalizarCompra() {
     if(carrinho.length === 0) return;
     if(!usuarioLogado) { alert("⚠️ Faça login para concluir o pedido!"); abrirAuthModal('login'); return; }
@@ -292,11 +314,8 @@ function finalizarCompra() {
     if(cep === '' || numeroCasa === '') { alert("⚠️ Por favor, informe o CEP e o Número da Casa!"); return; }
 
     const formaSelecionada = document.querySelector('input[name="forma-pagamento"]:checked').value;
-
-    // Objeto opcional para guardar os detalhes temporários do cartão caso este seja selecionado
     let detalhesCartaoObj = null;
 
-    // VALIDAÇÃO FORMULÁRIO DO CARTÃO
     if(formaSelecionada === 'Cartão de Crédito') {
         const num = document.getElementById('cartao-numero').value.trim();
         const nome = document.getElementById('cartao-nome').value.trim();
@@ -309,7 +328,6 @@ function finalizarCompra() {
         detalhesCartaoObj = { numero: num, nome_titular: nome, validade: val, cvv: cvv };
     }
 
-    // Faz o abatimento do estoque antes de confirmar a compra definitiva
     for (const item of carrinho) {
         if ((estoqueProdutos[item.nome] || 0) < item.qtd) {
             alert(`❌ O produto "${item.nome}" não possui estoque suficiente para fechar a compra.`);
@@ -320,16 +338,14 @@ function finalizarCompra() {
     const valorSubtotalCalculado = carrinho.reduce((acc, item) => acc + (item.preco * item.qtd), 0);
     const valorTotalCalculado = valorSubtotalCalculado + valorFrete;
 
-    // Mapeia os itens do carrinho local para enviar no formato exato que a API do backend espera
     const itensParaBackend = carrinho.map(item => ({
         nome: item.nome,
         preco: item.preco,
         quantidade: item.qtd
     }));
 
-    // Prepara a carga de dados unificada de Pedidos + Itens do Carrinho
     const dadosEnvioAPI = {
-        id_usuario: usuarioLogado.id || 1, // Prioriza o ID real vindo da sessão do banco
+        id_usuario: usuarioLogado.id || 1,
         total: valorTotalCalculado,
         frete: valorFrete,
         metodo_pagamento: formaSelecionada,
@@ -337,12 +353,9 @@ function finalizarCompra() {
         detalhes_cartao: detalhesCartaoObj
     };
 
-    // Envia o pedido completo direto para a sua API Node.js/MySQL
     fetch('http://localhost:3000/api/pedidos', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dadosEnvioAPI)
     })
     .then(res => res.json())
@@ -352,12 +365,6 @@ function finalizarCompra() {
             return;
         }
 
-        // Deduz as unidades compradas do estoque global local apenas se gravou com sucesso no MySQL
-        carrinho.forEach(item => {
-            estoqueProdutos[item.nome] -= item.qtd;
-        });
-
-        // Monta o objeto para sincronização de histórico local com o ID retornado pelo MySQL
         const novoPedido = {
             id: dadosResposta.id_pedido,
             usuarioEmail: usuarioLogado.email,
@@ -371,7 +378,6 @@ function finalizarCompra() {
         pedidosHistorico.push(novoPedido);
         localStorage.setItem('ecobyte_pedidos', JSON.stringify(pedidosHistorico));
         
-        // LIMPA E ATUALIZA ESTADOS
         carrinho = []; valorFrete = 0;
         document.getElementById('input-cep').value = '';
         document.getElementById('input-numero-casa').value = '';
@@ -379,19 +385,17 @@ function finalizarCompra() {
         salvarCarrinho(); 
         fecharCarrinho();
 
-        // ADICIONADO: Sincroniza e força a leitura dos novos valores de estoque atualizados pelo banco
+        // Recarrega o estoque vindo do banco e atualiza os cards na tela automaticamente
         carregarEstoqueDoBanco();
 
-        // DISPARA MODAL DE INTERAÇÃO FINANCEIRA DO MEIO ESCOLHIDO
         abrirModalVisualizacaoPagamento(novoPedido);
     })
     .catch(err => {
-        console.error("Erro ao conectar à API da EcoByte:", err);
+        console.error("Erro ao conectar à API:", err);
         alert("❌ O servidor está offline ou inacessível. O pedido não foi gravado no banco.");
     });
 }
 
-// RENDERIZADOR DOS MEIOS DE PAGAMENTO (PIX REAL E BOLETO COMPLETO)
 function abrirModalVisualizacaoPagamento(pedido) {
     const modal = document.getElementById('modal-checkout-resultado');
     const container = document.getElementById('conteudo-checkout-resultado');
@@ -531,12 +535,11 @@ window.filtrarPedidosShopee = function(tipo) {
     });
 };
 
-// CONTROLE DO MENU HAMBÚRGUER MOBILE (SEM ALTERAR O SISTEMA DE PAGAMENTO/PEDIDOS)
+// CONTROLE DO MENU HAMBÚRGUER MOBILE
 document.addEventListener('DOMContentLoaded', () => {
     const btnMobileMenu = document.getElementById('btn-mobile-menu');
     const mobileMenu = document.getElementById('mobile-menu');
 
-    // Abre e fecha o menu ao clicar no hambúrguer
     btnMobileMenu.addEventListener('click', () => {
         mobileMenu.classList.toggle('hidden');
         const icone = btnMobileMenu.querySelector('i');
@@ -547,7 +550,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Vincula os botões do mobile às funções originais existentes do seu sistema
     document.getElementById('btn-meus-pedidos-mobile').addEventListener('click', () => {
         mobileMenu.classList.add('hidden');
         btnMobileMenu.querySelector('i').className = "fa-solid fa-bars";
@@ -560,10 +562,9 @@ document.addEventListener('DOMContentLoaded', () => {
         abrirCarrinho();
     });
 
-    // Intercepta e updates a área de login/perfil também no menu mobile
     const originalAtualizarInterface = atualizarInterfaceUsuario;
     atualizarInterfaceUsuario = function() {
-        originalAtualizarInterface(); // Executa a função original desktop
+        originalAtualizarInterface(); 
         
         usuarioLogado = JSON.parse(localStorage.getItem('ecobyte_sessao'));
         const wrapperMobile = document.getElementById('area-autenticada-mobile');
@@ -587,6 +588,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // Executa uma primeira atualização para carregar os dados se o usuário já estiver logado
     atualizarInterfaceUsuario();
 });

@@ -17,8 +17,69 @@ tailwind.config = {
 
 let modoAuthIndex = "login";
 
+// MAPA E VARIÁVEIS GLOBAIS (Deixamos aqui no topo para que todas as funções tenham acesso)
+let map;
+let marcadores = [];
+let containerLista;
+
+// Array com os seus pontos fixos originais que vão aparecer logo ao carregar o site
+const pontos = [
+    { nome: "EcoByte Central - Eldorado", endereco: "Av. João César de Oliveira, 1200", lat: -19.9350, lng: -44.0450 },
+    { nome: "Ponto Parceiro - Centro Contagem", endereco: "Praça Silviano Brandão, 45", lat: -19.9320, lng: -44.0600 },
+    { nome: "Ecoponto Shopping - Cabral", endereco: "Alameda dos Sabiás, 80", lat: -19.9150, lng: -44.0250 },
+    { nome: "EcoByte Posto Reciclagem - Industrial", endereco: "Av. General David Sarnoff, 3000", lat: -19.9525, lng: -44.0280 }
+];
+
+// Função isolada para renderizar e sincronizar a lista lateral e os marcadores no Leaflet
+function renderizarPontos(termo = "") {
+    if (containerLista) containerLista.innerHTML = "";
+
+    pontos.forEach(p => {
+        const correspondeBusca = p.nome.toLowerCase().includes(termo) || p.endereco.toLowerCase().includes(termo);
+
+        if (correspondeBusca) {
+            let markerObj = marcadores.find(m => m.nome === p.nome.toLowerCase());
+            let markerInstance;
+            
+            if (!markerObj) {
+                markerInstance = L.marker([p.lat, p.lng]).addTo(map)
+                    .bindPopup(`<strong style="color:#314E3F">${p.nome}</strong><br>${p.endereco}<br><span style="font-size:11px; color:#4B6A7F;">Descarte seus eletrônicos aqui!</span>`);
+                marcadores.push({ instancia: markerInstance, nome: p.nome.toLowerCase() });
+            } else {
+                markerInstance = markerObj.instancia;
+                markerInstance.addTo(map);
+            }
+
+            if (containerLista) {
+                const card = document.createElement('div');
+                card.className = "p-3.5 bg-gray-50 hover:bg-eco-dark/10 border border-gray-100 rounded-xl cursor-pointer transition-all flex flex-col gap-1 shadow-xs";
+                card.innerHTML = `
+                    <h5 class="font-bold text-sm text-eco-dark"><i class="fa-solid fa-location-dot text-eco-blue mr-1.5"></i>${p.nome}</h5>
+                    <p class="text-xs text-gray-500 pl-4">${p.endereco}</p>
+                `;
+                
+                card.addEventListener('click', () => {
+                    map.setView([p.lat, p.lng], 15);
+                    markerInstance.openPopup();
+                });
+
+                containerLista.appendChild(card);
+            }
+        } else {
+            let markerObj = marcadores.find(m => m.nome === p.nome.toLowerCase());
+            if (markerObj) {
+                map.removeLayer(markerObj.instancia);
+            }
+        }
+    });
+
+    if (containerLista && containerLista.children.length === 0) {
+        containerLista.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">Nenhum ponto encontrado.</p>`;
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    // Menu Hambúrguer Mobile - Atualizado com controle de ícone e sem transparência
+    // Inicialização do Menu Hambúrguer Mobile
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
     const mobileLinks = document.querySelectorAll('.mobile-link');
@@ -35,7 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
         
-        // Fecha o menu móvel ao clicar em qualquer link interno e resgata o ícone original
         mobileLinks.forEach(link => {
             link.addEventListener('click', () => {
                 mobileMenu.classList.add('hidden');
@@ -44,76 +104,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- SEU MAPA REESTILIZADO COM LISTA LATERAL E MECANISMO DE BUSCA ---
-    const map = L.map('map').setView([-19.9317, -44.0536], 12);
+    // --- CONFIGURAÇÃO INICIAL DO MAPA ---
+    map = L.map('map').setView([-19.9317, -44.0536], 12);
+    containerLista = document.getElementById('lista-pontos-lateral');
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
-    // Lista atualizada com 4 pontos de coleta na região de Contagem com endereços incluídos
-    const pontos = [
-        { nome: "EcoByte Central - Eldorado", endereco: "Av. João César de Oliveira, 1200", lat: -19.9350, lng: -44.0450 },
-        { nome: "Ponto Parceiro - Centro Contagem", endereco: "Praça Silviano Brandão, 45", lat: -19.9320, lng: -44.0600 },
-        { nome: "Ecoponto Shopping - Cabral", endereco: "Alameda dos Sabiás, 80", lat: -19.9150, lng: -44.0250 },
-        { nome: "EcoByte Posto Reciclagem - Industrial", endereco: "Av. General David Sarnoff, 3000", lat: -19.9525, lng: -44.0280 }
-    ];
-
-    const marcadores = [];
-    const containerLista = document.getElementById('lista-pontos-lateral');
-
-    // Função para renderizar e sincronizar a lista lateral e os marcadores
-    function renderizarPontos(termo = "") {
-        if (containerLista) containerLista.innerHTML = "";
-
-        pontos.forEach(p => {
-            const correspondeBusca = p.nome.toLowerCase().includes(termo) || p.endereco.toLowerCase().includes(termo);
-
-            if (correspondeBusca) {
-                let markerObj = marcadores.find(m => m.nome === p.nome.toLowerCase());
-                let markerInstance;
-                
-                if (!markerObj) {
-                    markerInstance = L.marker([p.lat, p.lng]).addTo(map)
-                        .bindPopup(`<strong style="color:#314E3F">${p.nome}</strong><br>${p.endereco}<br><span style="font-size:11px; color:#4B6A7F;">Descarte seus eletrônicos aqui!</span>`);
-                    marcadores.push({ instancia: markerInstance, nome: p.nome.toLowerCase() });
-                } else {
-                    markerInstance = markerObj.instancia;
-                    markerInstance.addTo(map);
-                }
-
-                if (containerLista) {
-                    const card = document.createElement('div');
-                    card.className = "p-3.5 bg-gray-50 hover:bg-eco-dark/10 border border-gray-100 rounded-xl cursor-pointer transition-all flex flex-col gap-1 shadow-xs";
-                    card.innerHTML = `
-                        <h5 class="font-bold text-sm text-eco-dark"><i class="fa-solid fa-location-dot text-eco-blue mr-1.5"></i>${p.nome}</h5>
-                        <p class="text-xs text-gray-500 pl-4">${p.endereco}</p>
-                    `;
-                    
-                    card.addEventListener('click', () => {
-                        map.setView([p.lat, p.lng], 15);
-                        markerInstance.openPopup();
-                    });
-
-                    containerLista.appendChild(card);
-                }
-            } else {
-                let markerObj = marcadores.find(m => m.nome === p.nome.toLowerCase());
-                if (markerObj) {
-                    map.removeLayer(markerObj.instancia);
-                }
-            }
-        });
-
-        if (containerLista && containerLista.children.length === 0) {
-            containerLista.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">Nenhum ponto encontrado.</p>`;
-        }
-    }
-
-    // Inicializa a renderização estruturada dos pontos
+    // Renderiza os pontos na tela
     renderizarPontos();
 
-    // Filtro de Busca em Tempo Real integrado
+    // Filtro de Busca em Tempo Real
     const inputBusca = document.getElementById('busca-ponto');
     if (inputBusca) {
         inputBusca.addEventListener('input', (e) => {
@@ -123,6 +125,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     atualizarInterfaceUsuario();
+
+    // --- FORMULÁRIO DE CADASTRO CONECTADO À API ---
+    const pontoForm = document.getElementById('pontoForm');
+    if (pontoForm) {
+        pontoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nome = document.getElementById('ponto-nome').value.trim();
+            const endereco = document.getElementById('ponto-endereco').value.trim();
+            const lat = parseFloat(document.getElementById('ponto-lat').value);
+            const lng = parseFloat(document.getElementById('ponto-lng').value);
+
+            if (isNaN(lat) || isNaN(lng)) {
+                alert("❌ Por favor, insira valores válidos para Latitude e Longitude.");
+                return;
+            }
+
+            const dadosPonto = { nome, endereco, lat, lng };
+
+            try {
+                // Envia para salvar no seu banco de dados MySQL via API Node
+                const resposta = await fetch('http://localhost:3000/api/pontos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosPonto)
+                });
+
+                const dados = await resposta.json();
+
+                if (resposta.ok && dados.sucesso) {
+                    alert("🎉 Novo ponto de coleta cadastrado no banco de dados com sucesso!");
+
+                    // Adiciona na lista local para aparecer no site agora mesmo sem atualizar a página
+                    pontos.push(dadosPonto);
+                    renderizarPontos();
+
+                    // Foca o mapa no ponto novo criado
+                    map.setView([lat, lng], 14);
+                    pontoForm.reset();
+                } else {
+                    alert(`⚠️ Erro no servidor: ${dados.mensagem || 'Falha ao salvar no banco.'}`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("❌ Erro de rede: Verifique se a sua API Node está ligada.");
+            }
+        });
+    }
 });
 
 // --- ENGENHARIA DE AUTENTICAÇÃO DINÂMICA ---
@@ -130,8 +180,12 @@ function atualizarInterfaceUsuario() {
     const usuarioLogado = JSON.parse(localStorage.getItem('ecobyte_sessao'));
     const wrapperDesktop = document.getElementById('area-auth-index');
     const wrapperMobile = document.getElementById('area-auth-index-mobile');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const menuBtn = document.getElementById('menu-btn');
+    const secaoAdmin = document.getElementById('admin-cadastro-ponto');
+
+    // Deixa o formulário de cadastro SEMPRE visível para fins de testes locais
+    if (secaoAdmin) {
+        secaoAdmin.classList.remove('hidden');
+    }
 
     if (wrapperDesktop) {
         if (usuarioLogado) {
@@ -217,7 +271,7 @@ window.alternarModoIndex = function() {
         tito.innerText = "Acesse sua Conta";
         sub.innerText = "Monitore seus pontos e coletas";
         subBtn.innerText = "Entrar";
-        altTex.innerHTML = `Não tem uma conta? <button type="button" onclick="alternarModoIndex()" class="text-eco-dark font-bold hover:underline focus:outline-none">Cadastre-se</button>`;
+        altTex.innerHTML = `Não tem uma conta? <button type="button" onclick="alternarModoIndex()" class="text-eco-dark font-bold hover:underline focus:underline-none">Cadastre-se</button>`;
     }
 };
 
@@ -273,7 +327,7 @@ if (authForm) {
     });
 }
 
-// Integração do formulário de Cotações Ampliado
+// Formulário de Cotações Corporativas
 const cotacaoForm = document.getElementById('cotacaoForm');
 if (cotacaoForm) {
     cotacaoForm.addEventListener('submit', async (e) => {

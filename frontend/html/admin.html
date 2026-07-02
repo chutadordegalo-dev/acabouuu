@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoByte - Painel Administrativo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'eco-dark': '#314E3F',
+                        'eco-light': '#A1B59C',
+                        'eco-blue': '#4B6A7F',
+                        'eco-bg': '#F9FAFB',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-eco-bg text-gray-800">
+
+    <header class="bg-eco-dark text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fa-solid fa-user-gear"></i> Painel EcoByte Admin
+            </h1>
+            <a href="inicio.html" class="text-sm bg-white/20 px-3 py-1.5 rounded-lg hover:bg-white/30 transition">Sair</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <h2 class="text-lg font-bold text-eco-dark mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-box-open"></i> Cadastrar Novo Produto
+            </h2>
+            <form id="form-produto" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Nome do Produto</label>
+                    <input type="text" id="prod-nome" required class="w-full p-2.5 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Preço (R$)</label>
+                        <input type="number" step="0.01" id="prod-preco" required class="w-full p-2.5 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Estoque Inicial</label>
+                        <input type="number" id="prod-qtd" required class="w-full p-2.5 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Caminho da Imagem (Ex: img/ssd.png)</label>
+                    <input type="text" id="prod-img" class="w-full p-2.5 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm" placeholder="img/default.png">
+                </div>
+                <button type="submit" class="w-full bg-eco-dark text-white py-2.5 rounded-xl font-bold hover:bg-eco-blue transition shadow-md text-sm">
+                    Salvar Produto
+                </button>
+            </form>
+        </section>
+
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <h2 class="text-lg font-bold text-eco-dark mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-map-location-dot"></i> Cadastrar Ponto de Coleta
+            </h2>
+            <form id="form-ponto" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Nome do Local</label>
+                    <input type="text" id="ponto-nome" required class="w-full p-2.5 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm" placeholder="Ex: Senac Contagem">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Endereço Completo</label>
+                    <input type="text" id="ponto-end" required class="w-full p-2.5 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Latitude</label>
+                        <input type="number" step="any" id="ponto-lat" required class="w-full p-2.5 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm" placeholder="-19.9324">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Longitude</label>
+                        <input type="number" step="any" id="ponto-lng" required class="w-full p-2.5 border border-gray-200 rounded-xl outline-none focus:border-eco-dark bg-gray-50 text-sm" placeholder="-44.0532">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold hover:bg-orange-700 transition shadow-md text-sm">
+                    Salvar Ponto no Mapa
+                </button>
+            </form>
+        </section>
+
+    </main>
+
+    <script src="admin.js"></script>
+</body>
+</html>
